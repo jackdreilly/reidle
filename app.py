@@ -34,7 +34,7 @@ def _buster(busted_function: Callable[[], Any]) -> Callable[[Callable[[], Any]],
 
 
 def _cache_key():
-    return st.session_state.get("cache_key", "start")
+    return st.session_state.get("cache_key", datetime.utcnow().isoformat())
 
 
 @st.experimental_memo
