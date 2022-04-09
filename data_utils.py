@@ -29,6 +29,7 @@ def _db():
 
 def get() -> List[ReidleRecord]:
     """Return all records."""
+    print('fetching')
     return sorted(_db().fetch().items, key=lambda x: x["date"], reverse=True)
 
 

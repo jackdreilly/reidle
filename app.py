@@ -1,7 +1,8 @@
 import asyncio
 import functools
+import re
 import uuid
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable, List
 
@@ -15,12 +16,13 @@ st.set_page_config(layout="wide")
 
 st.session_state.setdefault("counter", 0)
 st.session_state.setdefault("run", False)
+st.session_state.setdefault("cache_key", uuid.uuid4().hex)
 
 
-@st.experimental_singleton
-def _word():
+@st.experimental_memo
+def _word(today: date):
     words = Path("words.csv").read_text().splitlines()
-    return words[datetime.utcnow().date().toordinal() % len(words)]
+    return words[today.toordinal() % len(words)]
 
 
 def _buster(busted_function: Callable[[], Any]) -> Callable[[Callable[[], Any]], Any]:
@@ -33,20 +35,23 @@ def _buster(busted_function: Callable[[], Any]) -> Callable[[Callable[[], Any]],
     return wrapper
 
 
-def _cache_key():
-    return st.session_state.get("cache_key", datetime.utcnow().isoformat())
-
-
 @st.experimental_memo
 def fetch(cache_key: str) -> List[data_utils.ReidleRecord]:
     """Return all records."""
+    print("cache", cache_key)
     return data_utils.get()
 
 
-data = fetch(_cache_key())
+data = fetch(st.session_state.cache_key)
 
 f"""
-[Go to Wordle](https://www.nytimes.com/games/wordle/index.html) Starter: **{_word()}**
+# Reidle Rules
+
+1. Start with the starter word (same for everyone).
+2. Every guess must be **potentially** correct (no fishing).
+2. Every guess must be a real word (no mashing).
+
+[Go to Wordle](https://www.nytimes.com/games/wordle/index.html) Starter: **{_word(datetime.utcnow().date())}**
 """
 c = st.container()
 df = pandas.DataFrame.from_records(
@@ -57,6 +62,16 @@ df = pandas.DataFrame.from_records(
             "Time": (datetime.min + timedelta(seconds=row["seconds"]))
             .time()
             .strftime("%H:%M:%S"),
+            "Rounds": (
+                (m := re.match(r"Wordle (\d+) (\d+)\/\d+", row["wordle_paste"]))
+                and m.group(2)
+                or ""
+            ),
+            "Score": (
+                (m := re.match(r"Wordle (\d+) (\d+)\/\d+", row["wordle_paste"]))
+                and m.group(1)
+                or ""
+            ),
             "Failure": row["failure"],
             "Wordle": row["wordle_paste"],
         }
