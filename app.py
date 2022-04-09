@@ -1,7 +1,7 @@
 import asyncio
 import functools
 import uuid
-from datetime import datetime
+from datetime import datetime, time
 from pathlib import Path
 from typing import Any, Callable, List
 
@@ -69,7 +69,7 @@ selected_rows = AgGrid(
 
 with c:
 
-    a, b, c, d, e, _ = st.columns([1.2, 0.5, 3, 2, 2, 4])
+    a, b, c, cc, d, e, _ = st.columns([1.2, 0.5, 3, 5, 2, 2, 0.1])
     with a:
 
         def _on_click():
@@ -94,21 +94,23 @@ with c:
     if st.session_state.counter and not st.session_state.run:
         with c:
             name = st.text_input("Name")
+        with cc:
+            seconds = st.number_input(
+                "Seconds", value=st.session_state.counter, min_value=0, step=1
+            )
         with d:
 
             @_buster
             def _add_on_click():
+                st.session_state.counter = 0
+                st.session_state.run = False
                 data_utils.add(
                     name=name,
                     date=datetime.utcnow().isoformat(),
-                    time=st.session_state.counter,
+                    time=seconds,
                 )
 
-            st.button(
-                "➕",
-                on_click=_add_on_click,
-                disabled=not name or not st.session_state.counter,
-            )
+            st.button("➕", on_click=_add_on_click, disabled=not name or not time)
 if st.session_state.run:
 
     async def runner():
