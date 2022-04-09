@@ -1,7 +1,7 @@
 import asyncio
 import functools
 import uuid
-from datetime import datetime, time
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable, List
 
@@ -52,7 +52,10 @@ df = pandas.DataFrame.from_records(
         {
             "Name": row["name"],
             "Date": datetime.fromisoformat(row["date"]).date().isoformat(),
-            "Time": row["time"],
+            "Time": (datetime.min + timedelta(seconds=row["seconds"]))
+            .time()
+            .strftime("%H:%M:%S"),
+            "Failure": row["failure"],
         }
         for row in data
     ]
@@ -69,7 +72,7 @@ selected_rows = AgGrid(
 
 with c:
 
-    a, b, c, cc, d, e, _ = st.columns([1.2, 0.5, 3, 5, 2, 2, 0.1])
+    a, b, c, cc, f, d, e, _ = st.columns([1.2, 0.5, 3, 5, 5, 2, 2, 0.1])
     with a:
 
         def _on_click():
@@ -98,6 +101,11 @@ with c:
             seconds = st.number_input(
                 "Seconds", value=st.session_state.counter, min_value=0, step=1
             )
+        with f:
+            failure = st.selectbox(
+                "Failure",
+                ["No", "Not a word", "Infeasible Guess", "Ran out of Guesses"],
+            )
         with d:
 
             @_buster
@@ -107,10 +115,11 @@ with c:
                 data_utils.add(
                     name=name,
                     date=datetime.utcnow().isoformat(),
-                    time=seconds,
+                    seconds=seconds,
+                    failure=failure,
                 )
 
-            st.button("➕", on_click=_add_on_click, disabled=not name or not time)
+            st.button("➕", on_click=_add_on_click, disabled=not name or not seconds)
 if st.session_state.run:
 
     async def runner():

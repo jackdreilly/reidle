@@ -12,7 +12,8 @@ class ReidleRecord(TypedDict):
 
     name: str
     date: datetime
-    time: int
+    seconds: int
+    failure: str
 
 
 @functools.lru_cache()
