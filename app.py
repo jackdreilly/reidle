@@ -47,11 +47,11 @@ data = fetch(st.session_state.cache_key)
 f"""
 # Reidle Rules
 
-1. Start with the starter word (same for everyone).
-2. Every guess must be **potentially** correct (no fishing).
-2. Every guess must be a real word (no mashing).
+1. Fastest time wins (# guesses less important).
+2. Start with the starter word `{_word(datetime.utcnow().date())}` (same for everyone, different each day).
+3. Every guess must be **potentially** correct (no fishing) and a **real** word (no mashing).
 
-[Go to Wordle](https://www.nytimes.com/games/wordle/index.html) Starter: **{_word(datetime.utcnow().date())}**
+[Go to Wordle](https://www.nytimes.com/games/wordle/index.html)
 """
 c = st.container()
 df = pandas.DataFrame.from_records(
