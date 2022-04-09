@@ -11,6 +11,8 @@ from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 import data_utils
 
+st.set_page_config(layout="wide")
+
 st.session_state.setdefault("counter", 0)
 st.session_state.setdefault("run", False)
 
@@ -56,6 +58,7 @@ df = pandas.DataFrame.from_records(
             .time()
             .strftime("%H:%M:%S"),
             "Failure": row["failure"],
+            "Wordle": row["wordle_paste"],
         }
         for row in data
     ]
@@ -72,7 +75,7 @@ selected_rows = AgGrid(
 
 with c:
 
-    a, b, c, cc, f, d, e, _ = st.columns([1.2, 0.5, 3, 5, 5, 2, 2, 0.1])
+    a, b, c, cc, f, w, d, e, _ = st.columns([1.2, 0.5, 3, 5, 5, 8, 2, 2, 0.1])
     with a:
 
         def _on_click():
@@ -106,6 +109,10 @@ with c:
                 "Failure",
                 ["No", "Not a word", "Infeasible Guess", "Ran out of Guesses"],
             )
+        with w:
+            wordle = st.text_area(
+                "Wordle Paste", "", help="Copy and paste from Wordle Share"
+            )
         with d:
 
             @_buster
@@ -117,6 +124,7 @@ with c:
                     date=datetime.utcnow().isoformat(),
                     seconds=seconds,
                     failure=failure,
+                    wordle_paste=wordle or "",
                 )
 
             st.button("➕", on_click=_add_on_click, disabled=not name or not seconds)

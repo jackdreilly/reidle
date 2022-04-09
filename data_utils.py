@@ -14,6 +14,7 @@ class ReidleRecord(TypedDict):
     date: datetime
     seconds: int
     failure: str
+    wordle_paste: str
 
 
 @functools.lru_cache()
