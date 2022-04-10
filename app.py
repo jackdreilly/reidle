@@ -2,6 +2,7 @@ import asyncio
 import functools
 import re
 import uuid
+import zlib
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable, List
@@ -22,7 +23,7 @@ st.session_state.setdefault("cache_key", uuid.uuid4().hex)
 @st.experimental_memo
 def _word(today: date):
     words = Path("words.csv").read_text().splitlines()
-    return words[today.toordinal() % len(words)]
+    return words[zlib.crc32(today.isoformat().encode()) % len(words)]
 
 
 def _buster(busted_function: Callable[[], Any]) -> Callable[[Callable[[], Any]], Any]:
