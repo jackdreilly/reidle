@@ -79,6 +79,7 @@ df["winner"] = (df.groupby(["Date"])["Time"].transform(min) == df["Time"]).trans
 b = GridOptionsBuilder.from_dataframe(df)
 b.configure_selection(selection_mode="multiple")
 b.configure_grid_options(rowClassRules=dict(winner="data.winner == 'Y'"))
+b.configure_column("winner", hide=True)
 selected_rows = AgGrid(
     df,
     gridOptions=b.build(),
