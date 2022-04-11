@@ -39,54 +39,53 @@ def _buster(busted_function: Callable[[], Any]) -> Callable[[Callable[[], Any]],
 @st.experimental_memo
 def fetch(cache_key: str) -> List[data_utils.ReidleRecord]:
     """Return all records."""
-    print("cache", cache_key)
     return data_utils.get()
 
 
 data = fetch(st.session_state.cache_key)
 
+with st.expander("Reidle Rules"):
+    """
+    1. Fastest time wins (# guesses less important).
+    2. Start with the starter word (same for everyone, different each day).
+    3. Every guess must be **potentially** correct (no fishing) and a **real** word (no mashing)."""
+
 f"""
-# Reidle Rules
-
-1. Fastest time wins (# guesses less important).
-2. Start with the starter word `{_word(datetime.utcnow().date())}` (same for everyone, different each day).
-3. Every guess must be **potentially** correct (no fishing) and a **real** word (no mashing).
-
-[Go to Wordle](https://www.nytimes.com/games/wordle/index.html)
+**TODAY'S WORD:** **`{_word(datetime.utcnow().date())}`** [Go to Wordle](https://www.nytimes.com/games/wordle/index.html)
 """
 c = st.container()
 df = pandas.DataFrame.from_records(
     [
         {
             "Name": row["name"],
-            "Date": datetime.fromisoformat(row["date"]).date().isoformat(),
+            "Date": datetime.fromisoformat(row["date"]).date().strftime("%m/%d"),
             "Time": (datetime.min + timedelta(seconds=row["seconds"]))
             .time()
-            .strftime("%H:%M:%S"),
-            "Rounds": (
+            .strftime("%M:%S"),
+            "Rds": (
                 (m := re.match(r"Wordle (\d+) (\d+)\/\d+", row["wordle_paste"]))
                 and m.group(2)
                 or ""
             ),
-            "Score": (
-                (m := re.match(r"Wordle (\d+) (\d+)\/\d+", row["wordle_paste"]))
-                and m.group(1)
-                or ""
-            ),
-            "Failure": row["failure"],
-            "Wordle": row["wordle_paste"],
+            "Fail": row["failure"],
+            "Paste": row["wordle_paste"],
         }
         for row in data
     ]
 )
+df["winner"] = (df.groupby(["Date"])["Time"].transform(min) == df["Time"]).transform(
+    lambda x: "NY"[x]
+)
 b = GridOptionsBuilder.from_dataframe(df)
 b.configure_selection(selection_mode="multiple")
+b.configure_grid_options(rowClassRules=dict(winner="data.winner == 'Y'"))
 selected_rows = AgGrid(
     df,
     gridOptions=b.build(),
     fit_columns_on_grid_load=True,
     theme="streamlit",
     update_mode=GridUpdateMode.SELECTION_CHANGED,
+    custom_css={".winner": {"font-weight": "bold", "color": "#016943 !important"}},
 )["selected_rows"]
 
 with c:
@@ -146,7 +145,7 @@ with c:
             st.button("➕", on_click=_add_on_click, disabled=not name or not seconds)
 if st.session_state.run:
 
-    async def runner():
+    async def _runner():
         if not st.session_state.run:
             return
         st.session_state.counter = 0
@@ -156,4 +155,4 @@ if st.session_state.run:
             x.text(st.session_state.counter)
             _ = await asyncio.sleep(1)
 
-    asyncio.run(runner())
+    asyncio.run(_runner())
