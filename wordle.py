@@ -50,7 +50,19 @@ def analyze(puzzle: str):
                 win=False,
                 round=round_number,
                 loss_type=LossType.infeasible,
-                description="No new information revealed, < 2 🟨 and same as previous round",
+                description="No new information revealed, exactly 1 🟨 and same as previous round",
+            )
+        if (
+            line_1.count("🟨") == 2
+            and line_1 == line_2
+            and line_index
+            and lines[line_index - 1] == line_1
+        ):
+            return Output(
+                win=False,
+                round=round_number,
+                loss_type=LossType.infeasible,
+                description="No new information revealed, exactly 2 🟨 and same as previous 2 rounds",
             )
 
     return Output(
