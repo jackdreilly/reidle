@@ -45,7 +45,7 @@ def analyze(puzzle: str):
                 loss_type=LossType.infeasible,
                 description=f"Total 🟩🟨 count went from {sa} to {sb}",
             )
-        if line_1.count("🟨") < 2 and line_1 == line_2:
+        if line_1.count("🟨") == 1 and line_1 == line_2:
             return Output(
                 win=False,
                 round=round_number,
