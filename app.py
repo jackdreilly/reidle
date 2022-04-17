@@ -12,6 +12,7 @@ import streamlit as st
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 import data_utils
+from wordle import analyze, description
 
 st.set_page_config(layout="wide")
 
@@ -68,18 +69,20 @@ df = pandas.DataFrame.from_records(
                 or ""
             ),
             "Fail": row["failure"],
-            "Paste": row["wordle_paste"],
+            "Paste": re.sub(r"Wordle (\d+) (\d+)\/\d+", "", row["wordle_paste"]),
         }
         for row in data
     ]
 )
-df["winner"] = (df.groupby(["Date"])["Time"].transform(min) == df["Time"]).transform(
-    lambda x: "NY"[x]
-)
+no_failures = df[df["Fail"] == "No"]
+df["winner"] = (
+    no_failures.groupby(["Date"])["Time"].transform(min) == no_failures["Time"]
+).transform(lambda x: "NY"[x])
 b = GridOptionsBuilder.from_dataframe(df)
 b.configure_selection(selection_mode="multiple")
 b.configure_grid_options(rowClassRules=dict(winner="data.winner == 'Y'"))
 b.configure_column("winner", hide=True)
+b.configure_column("Paste", wrapText=True, width=65, autoHeight=True)
 selected_rows = AgGrid(
     df,
     gridOptions=b.build(),
@@ -91,7 +94,7 @@ selected_rows = AgGrid(
 
 with c:
 
-    a, b, c, cc, f, w, d, e, _ = st.columns([1.2, 0.5, 3, 5, 5, 8, 2, 2, 0.1])
+    a, b, c, cc, w, f, d, e, _ = st.columns([1.2, 0.5, 3, 5, 5, 8, 2, 2, 0.1])
     with a:
 
         def _on_click():
@@ -120,15 +123,24 @@ with c:
             seconds = st.number_input(
                 "Seconds", value=st.session_state.counter, min_value=0, step=1
             )
-        with f:
-            failure = st.selectbox(
-                "Failure",
-                ["No", "Not a word", "Infeasible Guess", "Ran out of Guesses"],
-            )
         with w:
             wordle = st.text_area(
                 "Wordle Paste", "", help="Copy and paste from Wordle Share"
             )
+            output = None
+            try:
+                output = analyze(wordle)
+            except:
+                pass
+        with f:
+            if output and not output["win"]:
+                failure = description(output)
+                st.info(f"Failure: {failure}")
+            else:
+                failure = st.selectbox(
+                    "Failure",
+                    ["No", "Not a word", "Infeasible Guess", "Ran out of Guesses"],
+                )
         with d:
 
             @_buster
