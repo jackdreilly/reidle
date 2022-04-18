@@ -12,7 +12,7 @@ import streamlit as st
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 import data_utils
-from wordle import analyze, description
+from wordle import analyze, description, wordle_header_regex
 
 st.set_page_config(layout="wide")
 
@@ -64,12 +64,12 @@ df = pandas.DataFrame.from_records(
             .time()
             .strftime("%M:%S"),
             "Rds": (
-                (m := re.match(r"Wordle (\d+) (\d+)\/\d+", row["wordle_paste"]))
+                (m := wordle_header_regex.match(row["wordle_paste"]))
                 and m.group(2)
                 or ""
             ),
             "Fail": row["failure"],
-            "Paste": re.sub(r"Wordle (\d+) (\d+)\/\d+", "", row["wordle_paste"]),
+            "Paste": wordle_header_regex.sub("", row["wordle_paste"]).strip(),
         }
         for row in data
     ]
@@ -82,11 +82,18 @@ b = GridOptionsBuilder.from_dataframe(df)
 b.configure_selection(selection_mode="multiple")
 b.configure_grid_options(rowClassRules=dict(winner="data.winner == 'Y'"))
 b.configure_column("winner", hide=True)
-b.configure_column("Paste", wrapText=True, width=65, autoHeight=True)
+b.configure_column(
+    "Paste",
+    autoHeight=True,
+    suppressSizeToFit=True,
+    wrapText=True,
+    cellStyle={"white-space": "break-spaces", "line-height": "2vh", "font-size": "2vh"},
+)
 selected_rows = AgGrid(
     df,
     gridOptions=b.build(),
     fit_columns_on_grid_load=True,
+    allow_unsafe_jscode=True,
     theme="streamlit",
     update_mode=GridUpdateMode.SELECTION_CHANGED,
     custom_css={".winner": {"font-weight": "bold", "color": "#016943 !important"}},

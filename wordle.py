@@ -4,6 +4,8 @@ import enum
 import re
 from typing import TypedDict
 
+wordle_header_regex = re.compile(r"Wordle (\d+) (\w+)\/\d+")
+
 
 class LossType(enum.Enum):
     infeasible = "Infeasible Guess"
@@ -19,8 +21,7 @@ class Output(TypedDict):
 
 
 def analyze(puzzle: str):
-
-    lines = re.sub(r"Wordle (\d+) (\d+)\/\d+", "", puzzle).strip().splitlines()
+    lines = wordle_header_regex.sub("", puzzle).strip().splitlines()
     if lines[0] == "🟩🟩🟩🟩🟩":
         return Output(win=True, round=1)
     for line_index, (line_1, line_2) in enumerate(zip(lines, lines[1:])):
