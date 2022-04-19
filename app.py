@@ -9,6 +9,7 @@ from typing import Any, Callable, List
 
 import pandas
 import streamlit as st
+from twilio.rest import Client
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 import data_utils
@@ -19,6 +20,15 @@ st.set_page_config(layout="wide")
 st.session_state.setdefault("counter", 0)
 st.session_state.setdefault("run", False)
 st.session_state.setdefault("cache_key", uuid.uuid4().hex)
+
+
+def send_sms(body: str):
+    """Sends sms"""
+    return Client(st.secrets.twilio.sid, st.secrets.twilio.token).messages.create(
+        body=str(body),
+        from_=st.secrets.twilio.number,
+        to=st.secrets.twilio.to,
+    )
 
 
 @st.experimental_memo
@@ -120,6 +130,7 @@ with c:
                 for row in selected_rows:
                     for i, record in enumerate(df.to_dict("records")):
                         if record == row:
+                            send_sms(f"deleted {data[i]}")
                             data_utils.delete(data[i]["key"])
 
             st.button("🗑", on_click=_onclick)
@@ -154,6 +165,13 @@ with c:
             def _add_on_click():
                 st.session_state.counter = 0
                 st.session_state.run = False
+                send_sms(
+                    f"""new {dict(name=name,
+                    date=datetime.utcnow().isoformat(),
+                    seconds=seconds,
+                    failure=failure,
+                    wordle_paste=wordle or "",)}"""
+                )
                 data_utils.add(
                     name=name,
                     date=datetime.utcnow().isoformat(),
