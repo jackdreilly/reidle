@@ -130,6 +130,11 @@ with c:
                 for row in selected_rows:
                     for i, record in enumerate(df.to_dict("records")):
                         if record == row:
+                            if datetime.utcnow() - datetime.fromisoformat(
+                                data[i]["date"]
+                            ) > timedelta(hours=1):
+                                st.warning("Record too old to delete (max 1 hour)")
+                                continue
                             send_sms(f"deleted {data[i]}")
                             data_utils.delete(data[i]["key"])
 
