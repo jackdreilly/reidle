@@ -29,8 +29,8 @@ def send_sms(*args, **kwargs):
     SendGridAPIClient(st.secrets.sendgrid.api_key).send(
         Mail(
             from_email="jackdreilly@gmail.com",
-            to_emails="jackdreilly@gmail.com",
-            subject="Reidle",
+            to_emails="reidle@googlegroups.com",
+            subject="Update",
             html_content=f"<pre>{yaml_string}</pre>",
         )
     )
@@ -60,6 +60,9 @@ def fetch(cache_key: str) -> List[data_utils.ReidleRecord]:
 
 data = fetch(st.session_state.cache_key)
 
+st.markdown(
+    "[Join Reidle Google Group for Notifications/Chat](https://groups.google.com/g/reidle)"
+)
 with st.expander("Reidle Rules"):
     """
     1. Fastest time wins (# guesses less important).
