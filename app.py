@@ -1,6 +1,5 @@
 import asyncio
 import functools
-import re
 import uuid
 import zlib
 from datetime import date, datetime, timedelta
@@ -9,7 +8,9 @@ from typing import Any, Callable, List
 
 import pandas
 import streamlit as st
-from twilio.rest import Client
+import yaml
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 import data_utils
@@ -22,12 +23,16 @@ st.session_state.setdefault("run", False)
 st.session_state.setdefault("cache_key", uuid.uuid4().hex)
 
 
-def send_sms(body: str):
-    """Sends sms"""
-    return Client(st.secrets.twilio.sid, st.secrets.twilio.token).messages.create(
-        body=str(body),
-        from_=st.secrets.twilio.number,
-        to=st.secrets.twilio.to,
+def send_sms(*args, **kwargs):
+    """Sendgrid email"""
+    yaml_string = yaml.safe_dump({**kwargs, "args": args})
+    SendGridAPIClient(st.secrets.sendgrid.api_key).send(
+        Mail(
+            from_email="jackdreilly@gmail.com",
+            to_emails="jackdreilly@gmail.com",
+            subject="Reidle",
+            html_content=f"<pre>{yaml_string}</pre>",
+        )
     )
 
 
@@ -135,7 +140,7 @@ with c:
                             ) > timedelta(hours=1):
                                 st.warning("Record too old to delete (max 1 hour)")
                                 continue
-                            send_sms(f"deleted {data[i]}")
+                            send_sms(action="deleted", **data[i])
                             data_utils.delete(data[i]["key"])
 
             st.button("🗑", on_click=_onclick)
@@ -171,11 +176,12 @@ with c:
                 st.session_state.counter = 0
                 st.session_state.run = False
                 send_sms(
-                    f"""new {dict(name=name,
+                    action="posted",
+                    name=name,
                     date=datetime.utcnow().isoformat(),
                     seconds=seconds,
                     failure=failure,
-                    wordle_paste=wordle or "",)}"""
+                    wordle_paste=wordle,
                 )
                 data_utils.add(
                     name=name,
