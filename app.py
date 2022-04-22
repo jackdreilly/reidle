@@ -61,7 +61,7 @@ def fetch(cache_key: str) -> List[data_utils.ReidleRecord]:
 data = fetch(st.session_state.cache_key)
 
 st.markdown(
-    "[Join Reidle Google Group for Notifications/Chat](https://groups.google.com/g/reidle)"
+    "[🎉 Join Reidle Google Group for Notifications/Chat](https://groups.google.com/g/reidle)"
 )
 with st.expander("Reidle Rules"):
     """
