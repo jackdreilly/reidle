@@ -24,7 +24,7 @@ def _get_data():
 
 @functools.lru_cache()
 def _db():
-    return _get_data().Base("reidle")
+    return _get_data().Base(st.secrets.deta.get("db", "reidle"))
 
 
 def get() -> List[ReidleRecord]:
