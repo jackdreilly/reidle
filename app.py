@@ -25,6 +25,8 @@ st.session_state.setdefault("cache_key", uuid.uuid4().hex)
 
 def send_sms(*args, **kwargs):
     """Sendgrid email"""
+    if not st.secrets.get('sendgrid', {}).get('api_key'):
+        return
     yaml_string = yaml.safe_dump({**kwargs, "args": args})
     SendGridAPIClient(st.secrets.sendgrid.api_key).send(
         Mail(
