@@ -1,5 +1,4 @@
 """Data utils for reidle."""
-import functools
 from datetime import datetime
 from typing import List, TypedDict
 
@@ -17,12 +16,10 @@ class ReidleRecord(TypedDict):
     wordle_paste: str
 
 
-@functools.lru_cache()
 def _get_data():
     return Deta(st.secrets.deta.password)
 
 
-@functools.lru_cache()
 def _db():
     return _get_data().Base(st.secrets.deta.get("db", "reidle"))
 

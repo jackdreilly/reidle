@@ -25,7 +25,7 @@ st.session_state.setdefault("cache_key", uuid.uuid4().hex)
 
 def send_sms(*args, **kwargs):
     """Sendgrid email"""
-    if not st.secrets.get('sendgrid', {}).get('api_key'):
+    if not st.secrets.get("sendgrid", {}).get("api_key"):
         return
     yaml_string = yaml.safe_dump({**kwargs, "args": args})
     SendGridAPIClient(st.secrets.sendgrid.api_key).send(
@@ -94,10 +94,13 @@ df = pandas.DataFrame.from_records(
         for row in data
     ]
 )
-no_failures = df[df["Fail"] == "No"]
-df["winner"] = (
-    no_failures.groupby(["Date"])["Time"].transform(min) == no_failures["Time"]
-).transform(lambda x: "NY"[x])
+if df.empty:
+    df["winner"] = False
+else:
+    no_failures = df[df["Fail"] == "No"]
+    df["winner"] = (
+        no_failures.groupby(["Date"])["Time"].transform(min) == no_failures["Time"]
+    ).transform(lambda x: "NY"[x])
 b = GridOptionsBuilder.from_dataframe(df)
 b.configure_selection(selection_mode="multiple")
 b.configure_grid_options(rowClassRules=dict(winner="data.winner == 'Y'"))
