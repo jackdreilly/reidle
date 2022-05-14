@@ -1168,6 +1168,17 @@ simplejson = ">=3.0"
 streamlit = ">=0.87.0"
 
 [[package]]
+name = "streamlit-javascript"
+version = "0.1.5"
+description = "component to run javascript code in streamlit application"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+streamlit = ">=0.75"
+
+[[package]]
 name = "terminado"
 version = "0.13.3"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
@@ -1351,7 +1362,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "3266ec771b7e5add25b5bfb27013d887b470b083221b7bacacb313822a320ace"
+content-hash = "aa9d293af934557c84c8e2a36a19bf20a936b78204af3e806dcaf75755c4c026"
 
 [metadata.files]
 altair = [
@@ -2211,6 +2222,10 @@ streamlit = [
 streamlit-aggrid = [
     {file = "streamlit-aggrid-0.2.3.post2.tar.gz", hash = "sha256:c67936173a3b7fa9878b55d45a6c4ccfa8505680767e34a026aa27c4cea9b9f7"},
     {file = "streamlit_aggrid-0.2.3.post2-py3-none-any.whl", hash = "sha256:9f2b3f37d50ffe973fcaeff0117eb213ac3d957549293f127f0b67c502944292"},
+]
+streamlit-javascript = [
+    {file = "streamlit-javascript-0.1.5.tar.gz", hash = "sha256:9da5176522a0acf2c39d3b0bec9f856fdd8ea3c70bb1066841a546ab1348ae1d"},
+    {file = "streamlit_javascript-0.1.5-py3-none-any.whl", hash = "sha256:36ca4d8c46fd5b6526d1a705530472e03cb6e5bb24694330649f21d5c436d280"},
 ]
 terminado = [
     {file = "terminado-0.13.3-py3-none-any.whl", hash = "sha256:874d4ea3183536c1782d13c7c91342ef0cf4e5ee1d53633029cbc972c8760bd8"},

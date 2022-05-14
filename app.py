@@ -4,6 +4,7 @@ import uuid
 import zlib
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from streamlit_javascript import st_javascript
 from typing import Any, Callable, List
 
 import pandas
@@ -62,6 +63,10 @@ def fetch(cache_key: str) -> List[data_utils.ReidleRecord]:
 
 data = fetch(st.session_state.cache_key)
 
+local_date = datetime.now() - timedelta(
+    minutes=st_javascript("new Date().getTimezoneOffset()")
+)
+
 st.markdown(
     "🎉 [Join Reidle Google Group for Notifications/Chat](https://groups.google.com/g/reidle)"
 )
@@ -72,7 +77,7 @@ with st.expander("Reidle Rules"):
     3. Every guess must be **potentially** correct (no fishing) and a **real** word (no mashing)."""
 
 f"""
-**TODAY'S WORD:** **`{_word(datetime.utcnow().date())}`** [Go to Wordle](https://www.nytimes.com/games/wordle/index.html)
+**TODAY'S WORD:** **`{_word(local_date.date())}`** [Go to Wordle](https://www.nytimes.com/games/wordle/index.html)
 """
 c = st.container()
 df = pandas.DataFrame.from_records(
@@ -191,14 +196,14 @@ with c:
                 send_sms(
                     action="posted",
                     name=name,
-                    date=datetime.utcnow().isoformat(),
+                    date=local_date.isoformat(),
                     seconds=seconds,
                     failure=failure,
                     wordle_paste=wordle,
                 )
                 data_utils.add(
                     name=name,
-                    date=datetime.utcnow().isoformat(),
+                    date=local_date.isoformat(),
                     seconds=seconds,
                     failure=failure,
                     wordle_paste=wordle or "",
