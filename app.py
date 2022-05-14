@@ -110,7 +110,12 @@ b.configure_column(
     autoHeight=True,
     suppressSizeToFit=True,
     wrapText=True,
-    cellStyle={"white-space": "break-spaces", "line-height": "2vh", "font-size": "2vh", 'min-height': '8vh'},
+    cellStyle={
+        "white-space": "break-spaces",
+        "line-height": "2vh",
+        "font-size": "2vh",
+        "min-height": "8vh",
+    },
 )
 selected_rows = AgGrid(
     df,
@@ -213,3 +218,20 @@ if st.session_state.run:
             _ = await asyncio.sleep(1)
 
     asyncio.run(_runner())
+df["lower"] = df["Name"].str.lower()
+
+"""
+### Leaderboard (last 30 days)
+"""
+AgGrid(
+    df[df["winner"] == "Y"][
+        df["Date"].apply(
+            lambda x: datetime.strptime(x, "%m/%d").replace(year=datetime.now().year)
+        )
+        >= (datetime.now() - timedelta(days=30))
+    ][["winner", "lower"]]
+    .groupby("lower", as_index=False)
+    .count()
+    .rename(columns={"lower": "Name", "winner": "Count"})
+    .sort_values(by=["Count"], ascending=False)
+)
