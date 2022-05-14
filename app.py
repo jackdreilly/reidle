@@ -110,12 +110,12 @@ b.configure_column(
     autoHeight=True,
     suppressSizeToFit=True,
     wrapText=True,
-    cellStyle={"white-space": "break-spaces", "line-height": "2vh", "font-size": "2vh"},
+    cellStyle={"white-space": "break-spaces", "line-height": "2vh", "font-size": "2vh", 'min-height': '8vh'},
 )
 selected_rows = AgGrid(
     df,
     gridOptions=b.build(),
-    fit_columns_on_grid_load=True,
+    # fit_columns_on_grid_load=True,
     allow_unsafe_jscode=True,
     theme="streamlit",
     update_mode=GridUpdateMode.SELECTION_CHANGED,
