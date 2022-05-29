@@ -67,16 +67,9 @@ local_date = datetime.now() - timedelta(
     minutes=st_javascript("new Date().getTimezoneOffset()")
 )
 
-st.info("**Fixed**! We now use your local time zone.")
-
-st.markdown(
-    "🎉 [Join Reidle Google Group for Notifications/Chat](https://groups.google.com/g/reidle)"
-)
-with st.expander("Reidle Rules"):
-    """
-    1. Fastest time wins (# guesses less important).
-    2. Start with the starter word (same for everyone, different each day).
-    3. Every guess must be **potentially** correct (no fishing) and a **real** word (no mashing)."""
+"""
+# [✨✨✨Try Reidle Beta!!!✨✨✨](https://reidle-d39c2.web.app/#/)
+"""
 
 f"""
 **TODAY'S WORD:** **`{_word(local_date.date())}`** [Go to Wordle](https://www.nytimes.com/games/wordle/index.html)
