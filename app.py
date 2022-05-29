@@ -67,9 +67,9 @@ local_date = datetime.now() - timedelta(
     minutes=st_javascript("new Date().getTimezoneOffset()")
 )
 
-# """
-# # [✨✨✨Try Reidle Beta!!!✨✨✨](https://reidle-d39c2.web.app/#/)
-# """
+"""
+# [✨✨✨Try Reidle Beta!!!✨✨✨](https://reidle-d39c2.web.app/#/)
+"""
 
 f"""
 **TODAY'S WORD:** **`{_word(local_date.date())}`** [Go to Wordle](https://www.nytimes.com/games/wordle/index.html)
